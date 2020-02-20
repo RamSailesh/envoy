@@ -8,8 +8,8 @@ namespace Extensions {
 namespace AccessLoggers {
 namespace Common {
 
-void ImplBase::log(const Http::HeaderMap* request_headers, const Http::HeaderMap* response_headers,
-                   const Http::HeaderMap* response_trailers,
+void ImplBase::log(const Http::RequestHeaderMap* request_headers, const Http::ResponseHeaderMap* response_headers,
+                   const Http::ResponseTrailerMap* response_trailers,
                    const StreamInfo::StreamInfo& stream_info) {
   ConstSingleton<Http::HeaderMapImpl> empty_headers;
   if (!request_headers) {

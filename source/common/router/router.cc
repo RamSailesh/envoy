@@ -45,7 +45,7 @@ constexpr char NumInternalRedirectsFilterStateName[] = "num_internal_redirects";
 
 uint32_t getLength(const Buffer::Instance* instance) { return instance ? instance->length() : 0; }
 
-bool schemeIsHttp(const Http::HeaderMap& downstream_headers,
+bool schemeIsHttp(const Http::RequestHeaderMap& downstream_headers,
                   const Network::Connection& connection) {
   if (downstream_headers.ForwardedProto() &&
       downstream_headers.ForwardedProto()->value().getStringView() ==
@@ -58,7 +58,7 @@ bool schemeIsHttp(const Http::HeaderMap& downstream_headers,
   return false;
 }
 
-bool convertRequestHeadersForInternalRedirect(Http::HeaderMap& downstream_headers,
+bool convertRequestHeadersForInternalRedirect(Http::RequestHeaderMap& downstream_headers,
                                               StreamInfo::FilterState& filter_state,
                                               uint32_t max_internal_redirects,
                                               const Http::HeaderEntry& internal_redirect,
@@ -155,7 +155,7 @@ bool FilterUtility::shouldShadow(const ShadowPolicy& policy, Runtime::Loader& ru
 }
 
 FilterUtility::TimeoutData
-FilterUtility::finalTimeout(const RouteEntry& route, Http::HeaderMap& request_headers,
+FilterUtility::finalTimeout(const RouteEntry& route, Http::RequestHeaderMap& request_headers,
                             bool insert_envoy_expected_request_timeout_ms, bool grpc_request,
                             bool per_try_timeout_hedging_enabled,
                             bool respect_expected_rq_timeout) {
@@ -265,7 +265,7 @@ bool FilterUtility::trySetGlobalTimeout(const Http::HeaderEntry* header_timeout_
 }
 
 FilterUtility::HedgingParams FilterUtility::finalHedgingParams(const RouteEntry& route,
-                                                               Http::HeaderMap& request_headers) {
+                                                               Http::RequestHeaderMap& request_headers) {
   HedgingParams hedging_params;
   hedging_params.hedge_on_per_try_timeout_ = route.hedgePolicy().hedgeOnPerTryTimeout();
 
@@ -315,7 +315,7 @@ Stats::StatName Filter::upstreamZone(Upstream::HostDescriptionConstSharedPtr ups
 }
 
 void Filter::chargeUpstreamCode(uint64_t response_status_code,
-                                const Http::HeaderMap& response_headers,
+                                const Http::ResponseHeaderMap& response_headers,
                                 Upstream::HostDescriptionConstSharedPtr upstream_host,
                                 bool dropped) {
   // Passing the response_status_code explicitly is an optimization to avoid

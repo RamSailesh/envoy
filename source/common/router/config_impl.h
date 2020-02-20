@@ -397,7 +397,7 @@ public:
     return !host_redirect_.empty() || !path_redirect_.empty() || !prefix_rewrite_redirect_.empty();
   }
 
-  bool matchRoute(const Http::HeaderMap& headers, const StreamInfo::StreamInfo& stream_info,
+  bool matchRoute(const Http::RequestHeaderMap& headers, const StreamInfo::StreamInfo& stream_info,
                   uint64_t random_value) const;
   void validateClusters(Upstream::ClusterManager& cm) const;
 

@@ -140,7 +140,7 @@ public:
    * @param grpc_request tells if the request is a gRPC request.
    * @return TimeoutData for both the global and per try timeouts.
    */
-  static TimeoutData finalTimeout(const RouteEntry& route, Http::HeaderMap& request_headers,
+  static TimeoutData finalTimeout(const RouteEntry& route, Http::RequestHeaderMap& request_headers,
                                   bool insert_envoy_expected_request_timeout_ms, bool grpc_request,
                                   bool per_try_timeout_hedging_enabled,
                                   bool respect_expected_rq_timeout);
@@ -155,7 +155,7 @@ public:
    * @return HedgingParams the final parameters to use for request hedging.
    */
   static HedgingParams finalHedgingParams(const RouteEntry& route,
-                                          Http::HeaderMap& request_headers);
+                                          Http::RequestHeaderMap& request_headers);
 };
 
 /**
@@ -503,7 +503,7 @@ private:
   StreamInfo::ResponseFlag streamResetReasonToResponseFlag(Http::StreamResetReason reset_reason);
 
   Stats::StatName upstreamZone(Upstream::HostDescriptionConstSharedPtr upstream_host);
-  void chargeUpstreamCode(uint64_t response_status_code, const Http::HeaderMap& response_headers,
+  void chargeUpstreamCode(uint64_t response_status_code, const Http::ResponseHeaderMap& response_headers,
                           Upstream::HostDescriptionConstSharedPtr upstream_host, bool dropped);
   void chargeUpstreamCode(Http::Code code, Upstream::HostDescriptionConstSharedPtr upstream_host,
                           bool dropped);

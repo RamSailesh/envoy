@@ -46,7 +46,7 @@ struct Decision {
  * The context for the custom tag to obtain the tag value.
  */
 struct CustomTagContext {
-  const Http::HeaderMap* request_headers;
+  const Http::RequestHeaderMap* request_headers;
   const StreamInfo::StreamInfo& stream_info;
 };
 

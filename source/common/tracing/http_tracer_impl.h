@@ -107,15 +107,15 @@ public:
    * @return decision if request is traceable or not and Reason why.
    **/
   static Decision isTracing(const StreamInfo::StreamInfo& stream_info,
-                            const Http::HeaderMap& request_headers);
+                            const Http::RequestHeaderMap& request_headers);
 
   /**
    * Adds information obtained from the downstream request headers as tags to the active span.
    * Then finishes the span.
    */
-  static void finalizeDownstreamSpan(Span& span, const Http::HeaderMap* request_headers,
-                                     const Http::HeaderMap* response_headers,
-                                     const Http::HeaderMap* response_trailers,
+  static void finalizeDownstreamSpan(Span& span, const Http::RequestHeaderMap* request_headers,
+                                     const Http::ResponseHeaderMap* response_headers,
+                                     const Http::ResponseTrailerMap* response_trailers,
                                      const StreamInfo::StreamInfo& stream_info,
                                      const Config& tracing_config);
 
@@ -123,8 +123,8 @@ public:
    * Adds information obtained from the upstream request headers as tags to the active span.
    * Then finishes the span.
    */
-  static void finalizeUpstreamSpan(Span& span, const Http::HeaderMap* response_headers,
-                                   const Http::HeaderMap* response_trailers,
+  static void finalizeUpstreamSpan(Span& span, const Http::ResponseHeaderMap* response_headers,
+                                   const Http::ResponseTrailerMap* response_trailers,
                                    const StreamInfo::StreamInfo& stream_info,
                                    const Config& tracing_config);
 
@@ -135,8 +135,8 @@ public:
   static CustomTagConstSharedPtr createCustomTag(const envoy::type::tracing::v3::CustomTag& tag);
 
 private:
-  static void setCommonTags(Span& span, const Http::HeaderMap* response_headers,
-                            const Http::HeaderMap* response_trailers,
+  static void setCommonTags(Span& span, const Http::ResponseHeaderMap* response_headers,
+                            const Http::ResponseTrailerMap* response_trailers,
                             const StreamInfo::StreamInfo& stream_info,
                             const Config& tracing_config);
 

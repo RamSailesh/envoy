@@ -91,7 +91,7 @@ FilterPtr FilterFactory::fromProto(const envoy::config::accesslog::v3::AccessLog
 }
 
 bool TraceableRequestFilter::evaluate(const StreamInfo::StreamInfo& info,
-                                      const Http::HeaderMap& request_headers,
+                                      const Http::RequestHeaderMap& request_headers,
                                       const Http::HeaderMap&, const Http::HeaderMap&) {
   Tracing::Decision decision = Tracing::HttpTracerUtility::isTracing(info, request_headers);
 
@@ -122,7 +122,7 @@ RuntimeFilter::RuntimeFilter(const envoy::config::accesslog::v3::RuntimeFilter& 
       percent_(config.percent_sampled()),
       use_independent_randomness_(config.use_independent_randomness()) {}
 
-bool RuntimeFilter::evaluate(const StreamInfo::StreamInfo&, const Http::HeaderMap& request_headers,
+bool RuntimeFilter::evaluate(const StreamInfo::StreamInfo&, const Http::RequestHeaderMap& request_headers,
                              const Http::HeaderMap&, const Http::HeaderMap&) {
   const Http::HeaderEntry* uuid = request_headers.RequestId();
   uint64_t random_value;
@@ -158,9 +158,9 @@ AndFilter::AndFilter(const envoy::config::accesslog::v3::AndFilter& config,
                      ProtobufMessage::ValidationVisitor& validation_visitor)
     : OperatorFilter(config.filters(), runtime, random, validation_visitor) {}
 
-bool OrFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::HeaderMap& request_headers,
-                        const Http::HeaderMap& response_headers,
-                        const Http::HeaderMap& response_trailers) {
+bool OrFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::RequestHeaderMap& request_headers,
+                        const Http::ResponseHeaderMap& response_headers,
+                        const Http::ResponseTrailerMap& response_trailers) {
   bool result = false;
   for (auto& filter : filters_) {
     result |= filter->evaluate(info, request_headers, response_headers, response_trailers);
@@ -173,9 +173,9 @@ bool OrFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::HeaderMa
   return result;
 }
 
-bool AndFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::HeaderMap& request_headers,
-                         const Http::HeaderMap& response_headers,
-                         const Http::HeaderMap& response_trailers) {
+bool AndFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::RequestHeaderMap& request_headers,
+                         const Http::ResponseHeaderMap& response_headers,
+                         const Http::ResponseTrailerMap& response_trailers) {
   bool result = true;
   for (auto& filter : filters_) {
     result &= filter->evaluate(info, request_headers, response_headers, response_trailers);
@@ -196,7 +196,7 @@ bool NotHealthCheckFilter::evaluate(const StreamInfo::StreamInfo& info, const Ht
 HeaderFilter::HeaderFilter(const envoy::config::accesslog::v3::HeaderFilter& config)
     : header_data_(std::make_unique<Http::HeaderUtility::HeaderData>(config.header())) {}
 
-bool HeaderFilter::evaluate(const StreamInfo::StreamInfo&, const Http::HeaderMap& request_headers,
+bool HeaderFilter::evaluate(const StreamInfo::StreamInfo&, const Http::RequestHeaderMap& request_headers,
                             const Http::HeaderMap&, const Http::HeaderMap&) {
   return Http::HeaderUtility::matchHeaders(request_headers, *header_data_);
 }
@@ -229,8 +229,8 @@ GrpcStatusFilter::GrpcStatusFilter(const envoy::config::accesslog::v3::GrpcStatu
 }
 
 bool GrpcStatusFilter::evaluate(const StreamInfo::StreamInfo& info, const Http::HeaderMap&,
-                                const Http::HeaderMap& response_headers,
-                                const Http::HeaderMap& response_trailers) {
+                                const Http::ResponseHeaderMap& response_headers,
+                                const Http::ResponseTrailerMap& response_trailers) {
 
   Grpc::Status::GrpcStatus status = Grpc::Status::WellKnownGrpcStatus::Unknown;
   const auto& optional_status =

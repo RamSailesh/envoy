@@ -35,7 +35,7 @@ static std::string valueOrDefault(const Http::HeaderEntry* header, const char* d
   return header ? std::string(header->value().getStringView()) : default_value;
 }
 
-static std::string buildUrl(const Http::HeaderMap& request_headers,
+static std::string buildUrl(const Http::RequestHeaderMap& request_headers,
                             const uint32_t max_path_length) {
   std::string path(request_headers.EnvoyOriginalPath()
                        ? request_headers.EnvoyOriginalPath()->value().getStringView()
@@ -64,7 +64,7 @@ const std::string& HttpTracerUtility::toString(OperationName operation_name) {
 }
 
 Decision HttpTracerUtility::isTracing(const StreamInfo::StreamInfo& stream_info,
-                                      const Http::HeaderMap& request_headers) {
+                                      const Http::RequestHeaderMap& request_headers) {
   // Exclude health check requests immediately.
   if (stream_info.healthCheck()) {
     return {Reason::HealthCheck, false};
@@ -153,9 +153,9 @@ static void annotateVerbose(Span& span, const StreamInfo::StreamInfo& stream_inf
   }
 }
 
-void HttpTracerUtility::finalizeDownstreamSpan(Span& span, const Http::HeaderMap* request_headers,
-                                               const Http::HeaderMap* response_headers,
-                                               const Http::HeaderMap* response_trailers,
+void HttpTracerUtility::finalizeDownstreamSpan(Span& span, const Http::RequestHeaderMap* request_headers,
+                                               const Http::ResponseHeaderMap* response_headers,
+                                               const Http::ResponseTrailerMap* response_trailers,
                                                const StreamInfo::StreamInfo& stream_info,
                                                const Config& tracing_config) {
   // Pre response data.
@@ -208,8 +208,8 @@ void HttpTracerUtility::finalizeDownstreamSpan(Span& span, const Http::HeaderMap
   span.finishSpan();
 }
 
-void HttpTracerUtility::finalizeUpstreamSpan(Span& span, const Http::HeaderMap* response_headers,
-                                             const Http::HeaderMap* response_trailers,
+void HttpTracerUtility::finalizeUpstreamSpan(Span& span, const Http::ResponseHeaderMap* response_headers,
+                                             const Http::ResponseTrailerMap* response_trailers,
                                              const StreamInfo::StreamInfo& stream_info,
                                              const Config& tracing_config) {
   span.setTag(Tracing::Tags::get().HttpProtocol,
@@ -225,8 +225,8 @@ void HttpTracerUtility::finalizeUpstreamSpan(Span& span, const Http::HeaderMap* 
   span.finishSpan();
 }
 
-void HttpTracerUtility::setCommonTags(Span& span, const Http::HeaderMap* response_headers,
-                                      const Http::HeaderMap* response_trailers,
+void HttpTracerUtility::setCommonTags(Span& span, const Http::ResponseHeaderMap* response_headers,
+                                      const Http::ResponseTrailerMap* response_trailers,
                                       const StreamInfo::StreamInfo& stream_info,
                                       const Config& tracing_config) {
 

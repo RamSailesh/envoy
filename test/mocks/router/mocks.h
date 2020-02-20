@@ -46,9 +46,9 @@ public:
 
   // DirectResponseEntry
   MOCK_METHOD(void, finalizeResponseHeaders,
-              (Http::HeaderMap & headers, const StreamInfo::StreamInfo& stream_info), (const));
+              (Http::ResponseHeaderMap & headers, const StreamInfo::StreamInfo& stream_info), (const));
   MOCK_METHOD(std::string, newPath, (const Http::HeaderMap& headers), (const));
-  MOCK_METHOD(void, rewritePathHeader, (Http::HeaderMap & headers, bool insert_envoy_original_path),
+  MOCK_METHOD(void, rewritePathHeader, (Http::RequestHeaderMap & headers, bool insert_envoy_original_path),
               (const));
   MOCK_METHOD(Http::Code, responseCode, (), (const));
   MOCK_METHOD(const std::string&, responseBody, (), (const));
@@ -140,8 +140,8 @@ public:
 
   MOCK_METHOD(bool, enabled, ());
   MOCK_METHOD(RetryStatus, shouldRetryHeaders,
-              (const Http::HeaderMap& response_headers, DoRetryCallback callback));
-  MOCK_METHOD(bool, wouldRetryFromHeaders, (const Http::HeaderMap& response_headers));
+              (const Http::ResponseHeaderMap& response_headers, DoRetryCallback callback));
+  MOCK_METHOD(bool, wouldRetryFromHeaders, (const Http::ResponseHeaderMap& response_headers));
   MOCK_METHOD(RetryStatus, shouldRetryReset,
               (const Http::StreamResetReason reset_reason, DoRetryCallback callback));
   MOCK_METHOD(RetryStatus, shouldHedgeRetryPerTryTimeout, (DoRetryCallback callback));
@@ -260,7 +260,7 @@ public:
 
   // Http::HashPolicy
   MOCK_METHOD(absl::optional<uint64_t>, generateHash,
-              (const Network::Address::Instance* downstream_address, const Http::HeaderMap& headers,
+              (const Network::Address::Instance* downstream_address, const Http::RequestHeaderMap& headers,
                const AddCookieCallback add_cookie),
               (const));
 };
